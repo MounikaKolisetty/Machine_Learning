@@ -1,14 +1,16 @@
 import os
-import re
-import pandas as pd
 import numpy as np
+import pandas as pd
+from scipy import interp
+from itertools import cycle
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import plot_confusion_matrix
-import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve,auc
 
 path = r'/Users/mouni.kolisetty/Documents/Sem 3/machine learning/Files for task 5'
 
@@ -112,3 +114,49 @@ print("True Positive Rate(TPR) : ", TPR, "\n")
 # Specificity, selectivity or true negative rate
 TNR = TN/(TN+FP) 
 print("True Negative Rate(TNR) : ", TNR, "\n")
+
+fpr = dict()
+tpr = dict()
+roc_auc = dict()
+n_classes = 3
+
+for i in range(n_classes):
+    fpr[i], tpr[i], _ = roc_curve(np.array(pd.get_dummies(y_val))[:, i], np.array(pd.get_dummies(y_pred))[:, i])
+    roc_auc[i] = auc(fpr[i], tpr[i])
+
+all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
+
+mean_tpr = np.zeros_like(all_fpr)
+for i in range(n_classes):
+    mean_tpr += np.interp(all_fpr, fpr[i], tpr[i])
+
+mean_tpr /= n_classes
+
+fpr["macro"] = all_fpr
+tpr["macro"] = mean_tpr
+roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
+
+lw=2
+plt.figure(figsize=(8,5))
+plt.plot(fpr["macro"], tpr["macro"],
+         label='macro-average ROC curve (area = {0:0.2f})'
+               ''.format(roc_auc["macro"]),
+         color='green', linestyle='dotted', linewidth=4)
+
+colors = cycle(['purple', 'sienna', 'cornflowerblue'])
+for i, color in zip(range(n_classes), colors):
+    plt.plot(fpr[i], tpr[i], color=color, lw=lw,
+             label='ROC curve of object {0} (area = {1:0.2f})'
+             ''.format(i + 1 , roc_auc[i]))
+    print("roc_auc_score of object " , i+1, ": ", roc_auc[i])
+
+print("\n")
+plt.plot([0, 1], [0, 1], 'k--', lw=lw)
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.annotate('Random Guess',(.5,.48))
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC)')
+plt.legend(loc="lower right")
+plt.show()
