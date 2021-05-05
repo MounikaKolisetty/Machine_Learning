@@ -1,9 +1,11 @@
 import os
 import openpyxl
+import PIL
 import numpy as np
 import pandas as pd
 import tkinter as tk
 from tkinter import *
+from PIL import ImageTk, Image
 from scipy import interp
 from itertools import cycle
 import matplotlib.pyplot as plt
@@ -20,9 +22,11 @@ tabControl = ttk.Notebook(root)
 
 tab1 = ttk.Frame(tabControl)
 tab2 = ttk.Frame(tabControl)
+tab3 = ttk.Frame(tabControl)
 
-tabControl.add(tab1, text ='Test and Train')
+tabControl.add(tab1, text ='Train')
 tabControl.add(tab2, text ='Output Measures')
+tabControl.add(tab3, text ='Test')
 tabControl.pack(expand = 1, fill ="both")
 
 # setting canvas size and grid
@@ -54,8 +58,8 @@ signal_start = tk.Entry(tab1, width=5, textvariable=start_column).grid(row=2, co
 
 end_column = tk.IntVar()
 tk.Label(tab1, text="Signal Ends at Column : ", font='customFont1', fg="black",
-         width=20).place(x=500, y=170)
-signal_end = tk.Entry(tab1, width=5, textvariable=end_column).place(x=700, y=170)
+         width=20).place(x=500, y=190)
+signal_end = tk.Entry(tab1, width=5, textvariable=end_column).place(x=700, y=190)
 
 tk.Label(tab1, text="Accuracy obtained after validating the model with 20% of training data : ",
          font='customFont1', fg="black", width=40, wraplength=250).grid(columnspan=1, row=4, column=0)
@@ -64,7 +68,7 @@ tk.Entry(tab1, textvariable = string_variable, width=5).grid(columnspan=1, row=4
 
 def main():
     global training_set1, training_set2, training_set3, validation_set1, validation_set2, validation_set3
-    global folder_path, start_column, end_column, classifier, string_variable
+    global folder_path, start_column, end_column, classifier, string_variable, tkimage1, tkimage2
     global tp, tn, fp, fn, fdr, npv, tpr, tnr, roc, f1
     
     try :
@@ -102,21 +106,21 @@ def main():
                 if dir == "Object 1":
                     for f in files1:
                             df = pd.read_excel(os.path.join(subdir1,f), header=None, usecols=signal_width)
-                            df.insert(0, "Object Type", "Object 1")
+                            df.insert(0, "Object Type", "Object #1")
                             object1_data = object1_data.append(df,ignore_index=True)
                     training_set1, validation_set1 = train_test_split(object1_data, test_size=0.2, random_state=21)
                     
                 elif dir == "Object 2":
                     for f in files1:
                             df = pd.read_excel(os.path.join(subdir1,f), header=None, usecols=signal_width)
-                            df.insert(0, "Object Type", "Object 2")
+                            df.insert(0, "Object Type", "Object #2")
                             object2_data = object2_data.append(df,ignore_index=True)
                     training_set2, validation_set2 = train_test_split(object2_data, test_size=0.2, random_state=21)
                 
                 elif dir == "Object 3":
                     for f in files1:
                             df = pd.read_excel(os.path.join(subdir1,f), header=None, usecols=signal_width)
-                            df.insert(0, "Object Type", "Object 3")
+                            df.insert(0, "Object Type", "Object #3")
                             object3_data = object3_data.append(df,ignore_index=True)
                     training_set3, validation_set3 = train_test_split(object3_data, test_size=0.2, random_state=21)
 
@@ -152,8 +156,14 @@ def main():
     #Ploting confusion matrix
     disp = plot_confusion_matrix(classifier, X_val, y_val,
                                     cmap=plt.cm.Blues)
-    plt.show()
-
+    confusionmatrix_path = folder_path + '/ConfusionMatrix.png'
+    plt.savefig(confusionmatrix_path, dpi=300)
+    img1 = Image.open(confusionmatrix_path)
+    img1 = img1.resize((300, 300))
+    tkimage1 = ImageTk.PhotoImage(img1)
+    tk.Label(tab2, image=tkimage1).place(x=800,y=40)
+    
+    
     #Printing the accuracy
     accuracy = accuracy_score(y_pred, y_val)
     print("Accuracy of MLPClassifier : ", accuracy, "\n")
@@ -262,9 +272,9 @@ def main():
     colors = cycle(['purple', 'sienna', 'cornflowerblue'])
     for i, color in zip(range(n_classes), colors):
         plt.plot(fpr[i], tpr[i], color=color, lw=lw,
-                label='ROC curve of object {0} (area = {1:0.2f})'
+                label='ROC curve of object #{0} (area = {1:0.2f})'
                 ''.format(i + 1 , roc_auc[i]))
-        print("roc_auc_score of object " , i+1, ": ", roc_auc[i])
+        print("roc_auc_score of object #" , i+1, ": ", roc_auc[i])
         
     print("\n")
     plt.plot([0, 1], [0, 1], 'k--', lw=lw)
@@ -275,7 +285,12 @@ def main():
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic (ROC)')
     plt.legend(loc="lower right")
-    plt.show()
+    rocgraph_path = folder_path + '/ROC Graph.png'
+    plt.savefig(rocgraph_path, dpi=300)
+    img2 = Image.open(rocgraph_path)
+    img2 = img2.resize((300, 300))
+    tkimage2 = ImageTk.PhotoImage(img2)
+    tk.Label(tab2, image=tkimage2).place(x=800,y=400)
     
     Roc = list(roc_auc.values())
     Roc = ['{:.2f}'.format(elem) for elem in Roc]
@@ -288,8 +303,11 @@ trainBtn = tk.Button(tab1, text="Train", command=lambda:main() ,font='customFont
 trainBtn.grid(columnspan=6, column=0, row=3)
 
 #For Testing
-tk.Label(tab1, text="Testing the Model", font='customFont1', fg="black", bg="sky blue",
-         width=15).grid(columnspan=1, row=5, column=0)
+canvas = tk.Canvas(tab3, width=1200, height=1200)
+canvas.grid(rowspan=30, columnspan=30)
+
+tk.Label(tab3, text="Testing the Model", font='customFont1', fg="black", bg="sky blue",
+         width=15).grid(columnspan=1, row=1, column=0)
 
 def browse_file() :
     global file_path
@@ -297,13 +315,13 @@ def browse_file() :
     file_path.set(filename)
     
 file_path = tk.StringVar()  
-tk.Label(tab1, text="Path for Testing the Model : ", font='customFont1', fg="black",
-         width=20).grid(columnspan=1, row=6, column=0)
-training_path = tk.Entry(tab1, width=60, textvariable=file_path).grid(row=6, column=1)
+tk.Label(tab3, text="Path for Testing the Model : ", font='customFont1', fg="black",
+         width=20).grid(columnspan=1, row=2, column=0)
+training_path = tk.Entry(tab3, width=60, textvariable=file_path).grid(row=2, column=1)
 
-browseFileBtn = tk.Button(tab1, text="Browse File", command=lambda:browse_file(),
+browseFileBtn = tk.Button(tab3, text="Browse File", command=lambda:browse_file(),
                           font='customFont1', bg="azure", fg="black", height=2, width=15)
-browseFileBtn.grid(row=6, column=2)
+browseFileBtn.grid(row=2, column=2)
 
 def browse_outputFile() :
     global file_output_path
@@ -312,15 +330,15 @@ def browse_outputFile() :
     file_output_path.set(outputfilename + filename)
     
 file_output_path = tk.StringVar()
-tk.Label(tab1, text="Path to save data file after testing : ", font='customFont1', fg="black",
-         width=40).grid(columnspan=1, row=7, column=0)
-training_path = tk.Entry(tab1, width=60, textvariable=file_output_path).grid(row=7, column=1)
+tk.Label(tab3, text="Path to save data file after testing : ", font='customFont1', fg="black",
+         width=40).grid(columnspan=1, row=3, column=0)
+training_path = tk.Entry(tab3, width=60, textvariable=file_output_path).grid(row=3, column=1)
 
-browseOFileBtn = tk.Button(tab1, text="Browse Output Folder", command=lambda:browse_outputFile(), font='customFont1', bg="azure", fg="black", height=2, width=15)
-browseOFileBtn.grid(row=7, column=2)
+browseOFileBtn = tk.Button(tab3, text="Browse Output Folder", command=lambda:browse_outputFile(), font='customFont1', bg="azure", fg="black", height=2, width=15)
+browseOFileBtn.grid(row=3, column=2)
 
 def testing():
-    global file_path, file_output_path
+    global file_path, file_output_path, start_column3, end_column3
     
     try :
         file_path = file_path.get()
@@ -332,7 +350,17 @@ def testing():
     except :
         tk.messagebox.showwarning("Output file path empty", "Please specify file path for the Output file!")
         
-    signal_width = range(start_column, end_column)
+    try :
+        start_column3 = start_column3.get()
+    except :
+        tk.messagebox.showwarning("Starting Column empty", "Please specify starting column!")
+    
+    try :
+        end_column3 = end_column3.get()
+    except :
+        tk.messagebox.showwarning("Ending Column empty", "Please specify ending column!")
+        
+    signal_width = range(start_column3, end_column3)
 
     test_data = pd.read_excel(file_path, header = None, usecols = signal_width)
 
@@ -349,10 +377,47 @@ def testing():
 
     workbook.save(file_output_path)
     tk.messagebox.showinfo("Completed", "Testing is completed and Output file is generated")
-    
-testBtn = tk.Button(tab1, text="Test", command=lambda:testing() ,font='customFont1', bg="azure",
+
+start_column3 = tk.IntVar()
+tk.Label(tab3, text="Signal Starts at Column : ", font='customFont1', fg="black",
+         width=20).grid(columnspan=1, row=4, column=0)
+signal_start3 = tk.Entry(tab3, width=5, textvariable=start_column3).grid(row=4, column=1, sticky="W")
+
+end_column3 = tk.IntVar()
+tk.Label(tab3, text="Signal Ends at Column : ", font='customFont1', fg="black",
+         width=20).place(x=500, y=230)
+signal_end3 = tk.Entry(tab3, width=5, textvariable=end_column3).place(x=700, y=230)
+ 
+testBtn = tk.Button(tab3, text="Test", command=lambda:testing() ,font='customFont1', bg="azure",
                     fg="black", height=3, width=15)
-testBtn.grid(columnspan=6, column=0, row=8)
+testBtn.grid(columnspan=6, column=0, row=6)
+
+tk.Label(tab3, text="Precise Output", font='customFont1', fg="black", bg="sky blue",
+         width=13).grid(row=7, column=0)
+
+browseOp = tk.Button(tab3, text="Get Output Type", command=lambda:browse_Output_Type(),
+                      font='customFont1', bg="azure", fg="black", height=3, width=15)
+browseOp.grid(columnspan=6,row=10, column=0)
+
+tk.Label(tab3, text="Signal Row :", font='customFont1', fg="black", width = 15).grid(row=8, column=0)
+SignalRow = tk.IntVar()
+tk.Entry(tab3, textvariable = SignalRow, width=10).grid(row=8, column=1)
+
+tk.Label(tab3, text="Object Type :", font='customFont1', fg="black", width = 15).grid(row=9, column=0)
+ObjectType = tk.StringVar()
+tk.Label(tab3, textvariable = ObjectType).grid(row=9, column=1)
+
+def browse_Output_Type():
+    global ObjectType, SignalRow
+    wb = pd.DataFrame()
+    
+    OutputExcel = file_output_path
+    wb = pd.read_excel(OutputExcel, header=None)
+    
+    signalrow = SignalRow.get()
+    value = wb.iloc[signalrow-1, -1]
+    ObjectType.set(value)
+
 
 def Close():
     root.destroy()
@@ -459,31 +524,13 @@ tk.Entry(tab2, width=10, textvariable=roc[0]).grid(row=11, column=2)
 tk.Entry(tab2, width=10, textvariable=roc[1]).grid(row=11, column=3)
 tk.Entry(tab2, width=10, textvariable=roc[2]).grid(row=11, column=4)
 
-tk.Label(tab2, text="Precise Output", font='customFont1', fg="black", bg="sky blue",
+tk.Label(tab2, text="Confusion Matrix", font='customFont1', fg="black", bg="sky blue",
          width=13).grid(row=0, column=5)
 
-browseOp = tk.Button(tab2, text="Get Output Type", command=lambda:browse_Output_Type(),
-                      font='customFont1', bg="azure", fg="black", height=2, width=15)
-browseOp.grid(row=4, column=7)
 
-tk.Label(tab2, text="Signal Row :", font='customFont1', fg="black", width = 15).grid(row=2, column=6)
-SignalRow = tk.IntVar()
-tk.Entry(tab2, textvariable = SignalRow, width=10).grid(row=2, column=7)
 
-tk.Label(tab2, text="Object Type :", font='customFont1', fg="black", width = 15).grid(row=3, column=6)
-ObjectType = tk.StringVar()
-tk.Label(tab2, textvariable = ObjectType).grid(row=3, column=7)
-
-def browse_Output_Type():
-    global ObjectType, SignalRow
-    wb = pd.DataFrame()
-    
-    OutputExcel = file_output_path
-    wb = pd.read_excel(OutputExcel, header=None)
-    
-    signalrow = SignalRow.get()
-    value = wb.iloc[signalrow-1, -1]
-    ObjectType.set(value)
+tk.Label(tab2, text="ROC Graph", font='customFont1', fg="black", bg="sky blue",
+         width=13).grid(row=6, column=5)
 
 # Button for closing
 #exit_button = tk.Button(root, text="Exit", command=Close, height=3, width=13).grid(columnspan=6, column=5, row=12)
