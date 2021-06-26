@@ -1,5 +1,6 @@
 # Machine_Learning
-Discrimination of Reflected Sound Signals
+Discrimination of Reflected Sound Signals using MLP Classifier
+
 The surface of an object reflects a sound signal. Recording the reflected signal provides a time signal. This time signal results from the convolution of the incident acoustic wave with the surface properties of the reflecting object. Knowing the incident acoustic signal one can conclude on the reflecting object by analyzing the reflected signal.
 We use reflected time signals to conclude on the reflecting object. As the number of objects is limited in our experimental setup, solving the task means discriminating the time signals.
 # Model:
