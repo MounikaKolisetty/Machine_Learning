@@ -14,17 +14,14 @@ We use reflected time signals to conclude on the reflecting object. As the numbe
 The GUI looks as follows with three tabs:
 1. Train, 2. Output Measures and 3. Test
 
-## Train tab fetches all the the time signals from each row within specified columns, trains the MLP Classifier model and produces the Accuracy.
-## Model was build using sklearn.
+###### Train tab fetches all the the time signals from each row within specified columns, trains the MLP Classifier model and produces the Accuracy.             Model was build using sklearn.
 
 <img width="1263" alt="Screenshot 2021-06-26 at 12 22 36" src="https://user-images.githubusercontent.com/56874374/123510201-7c9dc280-d67a-11eb-9558-551ee2463ba6.png">
 
-## Output Measures tab displayes all the outputs acquired while validating 20% of whole data. 
-## Measures inculde: TruePositive(TP), TrueNegative(TN), FalsePositive(FP), FalseNegative(FN), False Discovery Rate(FDR), Negative Preductive Value(NPV), True Positive Rate(TPR), True Negative Rate(TNR), F1 Score, ROC Score, Confusion Matrix and ROC Graph.
+###### Output Measures tab displayes all the outputs acquired while validating 20% of whole data.                                                                 Measures inculde: TruePositive(TP), TrueNegative(TN), FalsePositive(FP), FalseNegative(FN), False Discovery Rate(FDR), Negative Preductive Value(NPV), True Positive Rate(TPR), True Negative Rate(TNR), F1 Score, ROC Score, Confusion Matrix and ROC Graph.
 
 <img width="1270" alt="Screenshot 2021-06-26 at 12 22 49" src="https://user-images.githubusercontent.com/56874374/123510206-81fb0d00-d67a-11eb-9bff-eb7ddeb28281.png">
 
-## Test tab browses the test file and also the folder to store the test result in Output.xlsx file.
-## In addition we can get the output of particular time signal using precise output.
+###### Test tab browses the test file and also the folder to store the test result in Output.xlsx file.                                                             In addition we can get the output of particular time signal using precise output.
 
 <img width="1269" alt="Screenshot 2021-06-26 at 12 23 07" src="https://user-images.githubusercontent.com/56874374/123510208-858e9400-d67a-11eb-98af-4d63dcd8e3c4.png">
