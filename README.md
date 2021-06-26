@@ -2,6 +2,11 @@
 Discrimination of Reflected Sound Signals
 The surface of an object reflects a sound signal. Recording the reflected signal provides a time signal. This time signal results from the convolution of the incident acoustic wave with the surface properties of the reflecting object. Knowing the incident acoustic signal one can conclude on the reflecting object by analyzing the reflected signal.
 We use reflected time signals to conclude on the reflecting object. As the number of objects is limited in our experimental setup, solving the task means discriminating the time signals.
+# Model:
+![mlp](https://user-images.githubusercontent.com/84661500/120302693-6f392680-c2ce-11eb-9f8e-0a78de7c21d3.png)
+
+The actual concept of neural network model which is specifically known as Multi-layer Perceptron classifier, is to obtain linear combinations of the given inputs as derived features and then model the target as a nonlinear function of these features. We used the MLPClassifier function in the sklearn Python library for MLP. We selected stochastic gradient-based optimizer proposed by Kingma, Diederik, and Jimmy Ba as the solver forweight optimization (ie, solver = “adam”) because of large dataset. We considered hyperparameters, including different hidden layer sizes and activation functions.
+
 # Tasks:
 1) Creating a GUI,
 2) Reading time signals from given Excel files, one time signal per row, starting column and signal length (number of scan points) adjustable,
